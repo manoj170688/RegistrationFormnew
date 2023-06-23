@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Form</title>
+    <style>
+        /* CSS styles for the modal popup */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+    <h1>Form</h1>
+    <button id="addButton">Add</button>
+
+    <!-- Modal Popup -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="myForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required><br><br>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" required><br><br>
+
+                <label for="phone">Phone No.:</label>
+                <input type="text" id="phone" pattern="[0-9]{10}" required><br><br>
+
+                <label for="address">Address:</label>
+                <input type="text" id="address"><br><br>
+
+                <label for="state">State:</label>
+                <select id="state" required>
+                    <option value="">Select State</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                </select><br><br>
+
+                <label for="city">City:</label>
+                <select id="city" required>
+                    <option value="">Select City</option>
+                </select><br><br>
+
+                <input type="checkbox" id="agree">
+                <label for="agree">Agree?</label><br><br>
+
+                <button type="submit" id="submitButton" disabled>Submit</button>
+                <button type="button" id="cancelButton">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listing Screen -->
+    <h2>Listing Screen</h2>
+    <table id="listTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var cities = {
+                Gujarat: ['Surat', 'Bardoli', 'Baroda'],
+                Maharashtra: ['Mumbai', 'Pune']
+            };
+
+            // Populate cities based on selected state
+            $('#state').change(function () {
+                var state = $(this).val();
+                var cityOptions = '<option value="">Select City</option>';
+                if (state !== '') {
+                    var stateCities = cities[state];
+                    for (var i = 0; i < stateCities.length; i++) {
+                        cityOptions += '<option value="' + stateCities[i] + '">' + stateCities[i] + '</option>';
+                    }
+                }
+                $('#city').html(cityOptions);
+            });
+
+            // Modal Popup
+            var modal = $('#myModal');
+            var form = $('#myForm');
+
+            // Show the modal popup
+            $('#addButton').click(function () {
+                modal.css('display', 'block');
+            });
+
+            // Close the modal popup
+            $('.close, #cancelButton').click(function () {
+                modal.css('display', 'none');
+                form.trigger('reset');
+            });
+
+            // Submit the form
+            form.submit(function (e) {
+                e.preventDefault();
+                // Perform AJAX request or form submission here
+                var name = $('#name').val();
+                var email = $('#email').val();
+                var phone = $('#phone').val();
+                var address = $('#address').val();
+                var state = $('#state').val();
+                var city = $('#city').val();
+                // Handle form submission logic
+                // ...
+
+
+                // Reset form and close modal
+                form.trigger('reset');
+                modal.css('display', 'none');
+            });
+
+            // Enable/disable submit button based on checkbox state
+            $('#agree').change(function () {
+                $('#submitButton').prop('disabled', !$(this).is(':checked'));
+            });
+
+          /*   Dummy data for the listing screen*/
+            var data = [
+                { name: 'manoj', email: 'jmanoj@gmail.com', phone: '1234567890' },
+                { name: 'pratik', email: 'jane@gmail.com', phone: '9876543210' }
+            ];
+
+            // Render the data in the listing screen
+            function renderData() {
+                var tbody = $('#listTable tbody');
+                tbody.empty();
+                $.each(data, function (index, item) {
+                    var row = '<tr>' +
+                        '<td>' + item.name + '</td>' +
+                        '<td>' + item.email + '</td>' +
+                        '<td>' + item.phone + '</td>' +
+                        '<td>' +
+                        '<button class="editButton">Edit</button>' +
+                        '<button class="deleteButton">Delete</button>' +
+                        '</td>' +
+                        '</tr>';
+                    tbody.append(row);
+                });
+            }
+
+            renderData();
+
+            // Edit button click event
+            $('#listTable').on('click', '.editButton', function () {
+                var index = $(this).closest('tr').index();
+                var item = data[index];
+                // Populate the modal form fields with the item data for editing
+                $('#name').val(item.name);
+                $('#email').val(item.email);
+                $('#phone').val(item.phone);
+                // Set the state and city fields based on the item data
+                // ...
+
+                // Show the modal popup with pre-filled data
+                modal.css('display', 'block');
+            });
+
+            // Delete button click event
+            $('#listTable').on('click', '.deleteButton', function () {
+                if (confirm('Are you sure you want to delete this item?')) {
+                    var index = $(this).closest('tr').index();
+                    // Perform AJAX request or delete logic here
+                    data.splice(index, 1); // Remove item from the data array
+                    renderData(); // Re-render the listing screen
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+>
